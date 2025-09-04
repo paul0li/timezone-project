@@ -196,19 +196,50 @@ const server = http.createServer((req, res) => {
   // Current time endpoint
   if (req.method === "GET" && pathname === "/current") {
     const now = new Date();
-    const pad = (n) => n.toString().padStart(2, "0");
     const currentDate = now.toISOString().split("T")[0];
-    const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+    // Get current time in Chile timezone
+    const chileTime = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Santiago",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(now);
 
     try {
-      const result = convertTime(currentDate, currentTime);
+      // Get all timezone conversions using Chile as source
+      const allZones = [
+        "America/Santiago",
+        "America/New_York",
+        "America/Argentina/Buenos_Aires",
+        "America/Bogota",
+        "America/Santo_Domingo",
+      ];
+
+      const epochUTC = calculateEpochFromTimezone(
+        currentDate,
+        chileTime,
+        "America/Santiago",
+      );
+      const conversions = {};
+
+      for (const tz of allZones) {
+        const formatted = new Intl.DateTimeFormat("en-US", {
+          timeZone: tz,
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }).format(new Date(epochUTC));
+        conversions[tz] = formatted;
+      }
+
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(
         JSON.stringify({
           date: currentDate,
-          time: currentTime,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          conversions: result,
+          time: chileTime,
+          timezone: "America/Santiago",
+          conversions: conversions,
         }),
       );
     } catch (error) {

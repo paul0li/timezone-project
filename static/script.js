@@ -14,41 +14,85 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentDateTimeSpan = document.getElementById("currentDateTime");
   const statusMessage = document.getElementById("statusMessage");
 
-  let lastEditedTimezone = "America/Santiago"; // Default source timezone
   let isUpdating = false; // Prevent recursive updates
 
   // Get user's timezone
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   userTimezoneSpan.textContent = userTimezone;
 
-  // Timezone information
+  // Determine default timezone - use user's timezone if supported, otherwise Chile
+  const supportedTimezones = [
+    "America/Santiago",
+    "America/New_York",
+    "America/Argentina/Buenos_Aires",
+    "America/Bogota",
+    "America/Santo_Domingo",
+  ];
+  let lastEditedTimezone = supportedTimezones.includes(userTimezone)
+    ? userTimezone
+    : "America/Santiago";
+
+  // Timezone information with flag emojis
   const timezoneData = {
     "America/Santiago": {
       name: "Chile",
       location: "Santiago",
       country: "CL",
+      flag: "🇨🇱",
     },
     "America/New_York": {
       name: "United States",
-      location: "New York (Eastern Time)",
+      location: "New York",
       country: "US",
+      flag: "🇺🇸",
     },
     "America/Argentina/Buenos_Aires": {
       name: "Argentina",
       location: "Buenos Aires",
       country: "AR",
+      flag: "🇦🇷",
     },
     "America/Bogota": {
       name: "Colombia",
       location: "Bogotá",
       country: "CO",
+      flag: "🇨🇴",
     },
     "America/Santo_Domingo": {
       name: "Dominican Republic",
       location: "Santo Domingo",
       country: "DO",
+      flag: "🇩🇴",
     },
   };
+
+  /**
+   * Insert flag emojis into their containers
+   */
+  function insertFlags() {
+    Object.keys(timezoneData).forEach((timezone) => {
+      const flagContainer = document.getElementById(`flag-${timezone}`);
+      if (flagContainer && timezoneData[timezone].flag) {
+        flagContainer.textContent = timezoneData[timezone].flag;
+      }
+    });
+  }
+
+  /**
+   * Update AM/PM display for a timezone
+   */
+  function updateAmPmDisplay(timezone, time24) {
+    const [hours, minutes] = time24.split(":");
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+
+    const ampmElement = document.querySelector(
+      `[data-timezone="${timezone}"] .ampm-display`,
+    );
+    if (ampmElement) {
+      ampmElement.textContent = ampm;
+    }
+  }
 
   /**
    * Update timezone offset display
@@ -102,20 +146,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /**
-   * Highlight the active timezone row
+   * Highlight the active timezone card
    */
   function highlightActiveTimezone(activeTimezone) {
     // Remove previous highlights
-    document.querySelectorAll(".timezone-row").forEach((row) => {
-      row.classList.remove("timezone-row--active");
+    document.querySelectorAll(".timezone-card").forEach((card) => {
+      card.classList.remove("timezone-card--active");
     });
 
     // Add highlight to active timezone
-    const activeRow = document.querySelector(
+    const activeCard = document.querySelector(
       `[data-timezone="${activeTimezone}"]`,
     );
-    if (activeRow) {
-      activeRow.classList.add("timezone-row--active");
+    if (activeCard) {
+      activeCard.classList.add("timezone-card--active");
     }
   }
 
@@ -141,11 +185,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       isUpdating = true;
 
-      // Update all time inputs with converted times
+      // Update all time inputs with converted times and AM/PM
       timeInputs.forEach((input) => {
         const timezone = input.getAttribute("data-timezone");
-        if (timezone !== sourceTimezone && data[timezone]) {
+        if (data[timezone]) {
           input.value = data[timezone];
+          updateAmPmDisplay(timezone, data[timezone]);
         }
       });
 
@@ -196,65 +241,95 @@ document.addEventListener("DOMContentLoaded", () => {
         // Set date input
         dateInput.value = data.date;
 
-        // Set initial time for Chile (default source)
-        const chileInput = document.querySelector(
-          '[data-timezone="America/Santiago"]',
+        // Use server's current time data which already includes conversions
+        // Set the user's timezone time from server response (or Chile as fallback)
+        const userTimezoneInput = document.querySelector(
+          `[data-timezone="${lastEditedTimezone}"]`,
         );
-        if (chileInput) {
-          chileInput.value = data.time;
-          lastEditedTimezone = "America/Santiago";
+        if (userTimezoneInput) {
+          userTimezoneInput.value = data.time;
+          updateAmPmDisplay(lastEditedTimezone, data.time);
         }
 
         // Update current date/time display
         currentDateTimeSpan.textContent = formatDateTime(
           data.date,
           data.time,
-          userTimezone,
+          lastEditedTimezone,
         );
 
-        // Perform initial conversion
-        await convertTimes("America/Santiago", data.date, data.time);
+        // Show all conversions from server response
+        if (data.conversions) {
+          isUpdating = true;
+          timeInputs.forEach((input) => {
+            const timezone = input.getAttribute("data-timezone");
+            if (timezone !== "America/Santiago" && data.conversions[timezone]) {
+              input.value = data.conversions[timezone];
+              updateAmPmDisplay(timezone, data.conversions[timezone]);
+            }
+          });
+          isUpdating = false;
+        }
+
+        // Ensure user's timezone time is always visible by converting from its own time
+        await convertTimes(lastEditedTimezone, data.date, data.time);
+
+        // Update timezone offsets
+        updateTimezoneOffsets(data.date);
+        highlightActiveTimezone(lastEditedTimezone);
       } else {
-        // Fallback to local time
+        // Fallback to user's timezone local time (or Chile if not supported)
         const now = new Date();
-        const pad = (n) => n.toString().padStart(2, "0");
         const currentDate = now.toISOString().split("T")[0];
-        const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const userTime = new Intl.DateTimeFormat("en-US", {
+          timeZone: lastEditedTimezone,
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }).format(now);
 
         dateInput.value = currentDate;
 
-        const chileInput = document.querySelector(
-          '[data-timezone="America/Santiago"]',
+        const userTimezoneInput = document.querySelector(
+          `[data-timezone="${lastEditedTimezone}"]`,
         );
-        if (chileInput) {
-          chileInput.value = currentTime;
+        if (userTimezoneInput) {
+          userTimezoneInput.value = userTime;
+          updateAmPmDisplay(lastEditedTimezone, userTime);
         }
 
         currentDateTimeSpan.textContent = formatDateTime(
           currentDate,
-          currentTime,
-          userTimezone,
+          userTime,
+          lastEditedTimezone,
         );
-        await convertTimes("America/Santiago", currentDate, currentTime);
+        await convertTimes(lastEditedTimezone, currentDate, userTime);
       }
     } catch (error) {
       console.error("Error loading initial times:", error);
 
-      // Fallback to current local time
+      // Fallback to user's timezone local time (or Chile if not supported)
       const now = new Date();
-      const pad = (n) => n.toString().padStart(2, "0");
       const currentDate = now.toISOString().split("T")[0];
-      const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      const userTime = new Intl.DateTimeFormat("en-US", {
+        timeZone: lastEditedTimezone,
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(now);
 
       dateInput.value = currentDate;
-      const chileInput = document.querySelector(
-        '[data-timezone="America/Santiago"]',
+      const userTimezoneInput = document.querySelector(
+        `[data-timezone="${lastEditedTimezone}"]`,
       );
-      if (chileInput) {
-        chileInput.value = currentTime;
+      if (userTimezoneInput) {
+        userTimezoneInput.value = userTime;
+        updateAmPmDisplay(lastEditedTimezone, userTime);
       }
 
-      statusMessage.textContent = "Using local browser time";
+      const timezoneName =
+        timezoneData[lastEditedTimezone]?.name || lastEditedTimezone;
+      statusMessage.textContent = `Using ${timezoneName} local time`;
       statusMessage.className = "status-message status-message--warning";
     }
   }
@@ -270,6 +345,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (date && time && !isUpdating) {
       lastEditedTimezone = timezone;
+      updateAmPmDisplay(timezone, time);
       convertTimes(timezone, date, time);
     }
   }
@@ -314,6 +390,34 @@ document.addEventListener("DOMContentLoaded", () => {
       updateTimezoneOffsets(currentDate);
     }
   }
+
+  // Theme toggle functionality
+  const themeToggle = document.getElementById("themeToggle");
+  const themeIcon = document.querySelector(".theme-icon");
+
+  // Load saved theme preference or default to light
+  const savedTheme = localStorage.getItem("theme") || "light";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+  updateThemeIcon(savedTheme);
+
+  function updateThemeIcon(theme) {
+    themeIcon.textContent = theme === "dark" ? "☀️" : "🌙";
+  }
+
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateThemeIcon(newTheme);
+  }
+
+  // Theme toggle event listener
+  themeToggle.addEventListener("click", toggleTheme);
+
+  // Insert flags into containers
+  insertFlags();
 
   // Load initial times when page loads
   loadInitialTimes();

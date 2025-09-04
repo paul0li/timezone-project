@@ -5,143 +5,195 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>World Time Zone Converter</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap"
+            rel="stylesheet"
+        />
         <link rel="stylesheet" href="styles.css" />
     </head>
     <body>
         <div class="container">
             <h1>World Time Zone Converter</h1>
-            <div id="currentInfo" class="current-info">
-                <p>
-                    <strong>Your timezone:</strong>
-                    <span id="userTimezone">Detecting...</span>
-                </p>
-                <p>
-                    <strong>Current date and time:</strong>
-                    <span id="currentDateTime">Loading...</span>
-                </p>
+
+            <div class="header-section">
+                <div id="currentInfo" class="current-info">
+                    <p>
+                        <strong>Your timezone:</strong>
+                        <span id="userTimezone">Detecting...</span>
+                    </p>
+                    <p>
+                        <strong>Current date and time:</strong>
+                        <span id="currentDateTime">Loading...</span>
+                    </p>
+                </div>
+                <div class="controls-section">
+                    <button
+                        id="themeToggle"
+                        class="theme-toggle"
+                        title="Toggle dark mode"
+                    >
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                    <div class="date-section">
+                        <label for="dateInput" class="date-label">Date</label>
+                        <input id="dateInput" type="date" class="date-input" />
+                    </div>
+                </div>
             </div>
-            <p>
-                Change any time and the others will update automatically. The
-                edited timezone will be highlighted as the reference.
-            </p>
 
             <div class="timezone-converter">
-                <div class="date-section">
-                    <label for="dateInput" class="date-label">Date:</label>
-                    <input id="dateInput" type="date" class="date-input" />
-                </div>
-
                 <div class="timezone-grid">
-                    <div class="timezone-row" data-timezone="America/Santiago">
-                        <div class="timezone-info">
-                            <div class="timezone-name">Chile</div>
-                            <div class="timezone-location">Santiago</div>
+                    <div class="timezone-card" data-timezone="America/Santiago">
+                        <div class="card-header">
+                            <div
+                                class="flag-container"
+                                id="flag-America/Santiago"
+                            ></div>
+                            <div class="timezone-info">
+                                <div class="timezone-name">Chile</div>
+                                <div class="timezone-location">Santiago</div>
+                            </div>
                         </div>
-                        <div class="time-input-wrapper">
+                        <div class="time-section">
                             <input
                                 type="time"
                                 class="time-input"
                                 data-timezone="America/Santiago"
                                 step="60"
                             />
-                        </div>
-                        <div
-                            class="timezone-offset"
-                            data-timezone="America/Santiago"
-                        >
-                            UTC-3
+                            <div class="ampm-display">AM</div>
+                            <div
+                                class="timezone-offset"
+                                data-timezone="America/Santiago"
+                            >
+                                UTC-3
+                            </div>
                         </div>
                     </div>
 
-                    <div class="timezone-row" data-timezone="America/New_York">
-                        <div class="timezone-info">
-                            <div class="timezone-name">United States</div>
-                            <div class="timezone-location">
-                                New York (Eastern Time)
+                    <div class="timezone-card" data-timezone="America/New_York">
+                        <div class="card-header">
+                            <div
+                                class="flag-container"
+                                id="flag-America/New_York"
+                            ></div>
+                            <div class="timezone-info">
+                                <div class="timezone-name">United States</div>
+                                <div class="timezone-location">New York</div>
                             </div>
                         </div>
-                        <div class="time-input-wrapper">
+                        <div class="time-section">
                             <input
                                 type="time"
                                 class="time-input"
                                 data-timezone="America/New_York"
                                 step="60"
                             />
-                        </div>
-                        <div
-                            class="timezone-offset"
-                            data-timezone="America/New_York"
-                        >
-                            UTC-5
+                            <div class="ampm-display">AM</div>
+                            <div
+                                class="timezone-offset"
+                                data-timezone="America/New_York"
+                            >
+                                UTC-5
+                            </div>
                         </div>
                     </div>
 
                     <div
-                        class="timezone-row"
+                        class="timezone-card"
                         data-timezone="America/Argentina/Buenos_Aires"
                     >
-                        <div class="timezone-info">
-                            <div class="timezone-name">Argentina</div>
-                            <div class="timezone-location">Buenos Aires</div>
+                        <div class="card-header">
+                            <div
+                                class="flag-container"
+                                id="flag-America/Argentina/Buenos_Aires"
+                            ></div>
+                            <div class="timezone-info">
+                                <div class="timezone-name">Argentina</div>
+                                <div class="timezone-location">
+                                    Buenos Aires
+                                </div>
+                            </div>
                         </div>
-                        <div class="time-input-wrapper">
+                        <div class="time-section">
                             <input
                                 type="time"
                                 class="time-input"
                                 data-timezone="America/Argentina/Buenos_Aires"
                                 step="60"
                             />
-                        </div>
-                        <div
-                            class="timezone-offset"
-                            data-timezone="America/Argentina/Buenos_Aires"
-                        >
-                            UTC-3
+                            <div class="ampm-display">AM</div>
+                            <div
+                                class="timezone-offset"
+                                data-timezone="America/Argentina/Buenos_Aires"
+                            >
+                                UTC-3
+                            </div>
                         </div>
                     </div>
 
-                    <div class="timezone-row" data-timezone="America/Bogota">
-                        <div class="timezone-info">
-                            <div class="timezone-name">Colombia</div>
-                            <div class="timezone-location">Bogotá</div>
+                    <div class="timezone-card" data-timezone="America/Bogota">
+                        <div class="card-header">
+                            <div
+                                class="flag-container"
+                                id="flag-America/Bogota"
+                            ></div>
+                            <div class="timezone-info">
+                                <div class="timezone-name">Colombia</div>
+                                <div class="timezone-location">Bogotá</div>
+                            </div>
                         </div>
-                        <div class="time-input-wrapper">
+                        <div class="time-section">
                             <input
                                 type="time"
                                 class="time-input"
                                 data-timezone="America/Bogota"
                                 step="60"
                             />
-                        </div>
-                        <div
-                            class="timezone-offset"
-                            data-timezone="America/Bogota"
-                        >
-                            UTC-5
+                            <div class="ampm-display">AM</div>
+                            <div
+                                class="timezone-offset"
+                                data-timezone="America/Bogota"
+                            >
+                                UTC-5
+                            </div>
                         </div>
                     </div>
 
                     <div
-                        class="timezone-row"
+                        class="timezone-card"
                         data-timezone="America/Santo_Domingo"
                     >
-                        <div class="timezone-info">
-                            <div class="timezone-name">Dominican Republic</div>
-                            <div class="timezone-location">Santo Domingo</div>
+                        <div class="card-header">
+                            <div
+                                class="flag-container"
+                                id="flag-America/Santo_Domingo"
+                            ></div>
+                            <div class="timezone-info">
+                                <div class="timezone-name">
+                                    Dominican Republic
+                                </div>
+                                <div class="timezone-location">
+                                    Santo Domingo
+                                </div>
+                            </div>
                         </div>
-                        <div class="time-input-wrapper">
+                        <div class="time-section">
                             <input
                                 type="time"
                                 class="time-input"
                                 data-timezone="America/Santo_Domingo"
                                 step="60"
                             />
-                        </div>
-                        <div
-                            class="timezone-offset"
-                            data-timezone="America/Santo_Domingo"
-                        >
-                            UTC-4
+                            <div class="ampm-display">AM</div>
+                            <div
+                                class="timezone-offset"
+                                data-timezone="America/Santo_Domingo"
+                            >
+                                UTC-4
+                            </div>
                         </div>
                     </div>
                 </div>
