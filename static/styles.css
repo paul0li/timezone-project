@@ -1,0 +1,409 @@
+/*
+ * Estilos para el conversor de horario mundial con múltiples zonas horarias.
+ *
+ * Este CSS proporciona una interfaz moderna y limpia para el convertidor
+ * de zonas horarias, donde cada zona tiene su propio input de tiempo.
+ * Incluye efectos de hover, destacado de la zona activa y diseño responsivo.
+ */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    margin: 0 0 1.5rem 0;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: center;
+}
+
+p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* Current info section */
+.current-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.current-info p {
+    margin: 0.5rem 0;
+    color: white;
+}
+
+.current-info strong {
+    font-weight: 600;
+}
+
+/* Timezone converter main container */
+.timezone-converter {
+    margin-top: 2rem;
+}
+
+/* Date section */
+.date-section {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.date-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.date-input {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    min-width: 200px;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Timezone grid */
+.timezone-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.timezone-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #fff;
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.timezone-row:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-1px);
+}
+
+.timezone-row--active {
+    border-color: #667eea;
+    background: linear-gradient(
+        135deg,
+        rgba(102, 126, 234, 0.05) 0%,
+        rgba(118, 75, 162, 0.05) 100%
+    );
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+}
+
+.timezone-row--active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px 0 0 4px;
+}
+
+/* Timezone info */
+.timezone-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.timezone-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.timezone-location {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* Time input wrapper and input */
+.time-input-wrapper {
+    position: relative;
+}
+
+.time-input {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    text-align: center;
+}
+
+.time-input:hover {
+    border-color: #667eea;
+    background-color: #f8f9ff;
+}
+
+.time-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background-color: #fff;
+}
+
+.timezone-row--active .time-input {
+    border-color: #667eea;
+    background: linear-gradient(
+        135deg,
+        #fff 0%,
+        rgba(102, 126, 234, 0.02) 100%
+    );
+    font-weight: 600;
+}
+
+/* Timezone offset */
+.timezone-offset {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+    background-color: #f8f9fa;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid #e1e8ed;
+    min-width: 70px;
+    text-align: center;
+}
+
+.timezone-row--active .timezone-offset {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+/* Status message */
+.status-message {
+    margin-top: 2rem;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.status-message--loading {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+}
+
+.status-message--success {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.status-message--error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+}
+
+.status-message--warning {
+    background-color: #fff3e0;
+    color: #ef6c00;
+    border: 1px solid #ffcc02;
+}
+
+/* Loading animation for status message */
+.status-message--loading::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #1976d2;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        margin: 1rem;
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .timezone-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        text-align: center;
+    }
+
+    .timezone-info {
+        text-align: center;
+    }
+
+    .time-input {
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+    }
+
+    .timezone-offset {
+        margin: 0 auto;
+    }
+
+    .current-info {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        margin: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    h1 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .timezone-row {
+        padding: 0.75rem;
+    }
+
+    .timezone-name {
+        font-size: 1rem;
+    }
+
+    .timezone-location {
+        font-size: 0.8rem;
+    }
+
+    .time-input {
+        font-size: 1rem;
+        padding: 0.6rem 0.8rem;
+    }
+
+    .date-input {
+        padding: 0.6rem 0.8rem;
+        min-width: 180px;
+    }
+}
+
+/* Print styles */
+@media print {
+    body {
+        background-color: white;
+    }
+
+    .container {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+
+    .current-info {
+        background: #f0f0f0 !important;
+        color: black !important;
+        border: 1px solid #ccc;
+    }
+
+    .timezone-row {
+        border: 1px solid #ccc;
+        break-inside: avoid;
+    }
+
+    .timezone-row--active {
+        background-color: #f9f9f9 !important;
+    }
+
+    .status-message {
+        display: none;
+    }
+}
+
+/* Focus management for accessibility */
+.time-input:focus,
+.date-input:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .timezone-row {
+        border-width: 3px;
+    }
+
+    .timezone-row--active {
+        border-color: #000;
+    }
+
+    .time-input:focus,
+    .date-input:focus {
+        outline-width: 3px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

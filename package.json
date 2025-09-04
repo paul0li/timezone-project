@@ -1,24 +1,26 @@
 {
   "name": "timezone-project",
   "version": "1.0.0",
-  "description": "Multi-timezone converter with editable inputs for each timezone - similar to timeanddate.com",
-  "main": "time-converter-app/server.js",
+  "description": "Modern world timezone converter with individual editable inputs - inspired by timeanddate.com",
+  "main": "server.js",
   "scripts": {
-    "start": "node time-converter-app/server.js",
-    "dev": "node time-converter-app/server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "keywords": [
     "timezone",
     "converter",
     "time",
     "world-clock",
-    "chile",
     "javascript",
     "nodejs",
     "timeanddate",
-    "multi-timezone"
+    "multi-timezone",
+    "dst",
+    "utc",
+    "international"
   ],
-  "author": "Your Name",
+  "author": "World Timezone Converter",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
