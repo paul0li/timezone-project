@@ -2,7 +2,6 @@
 
 A modern, interactive timezone converter that works just like **timeanddate.com**. Each timezone has its own editable time input, and when you change any time, all others update automatically with the edited timezone highlighted as the reference.
 
-![Timezone Converter Preview](https://via.placeholder.com/800x400/667eea/ffffff?text=World+Time+Zone+Converter)
 
 ## ✨ Features
 
@@ -24,22 +23,14 @@ A modern, interactive timezone converter that works just like **timeanddate.com*
 - **Status indicators**: Clear feedback on which timezone is being used as reference
 
 ### ⚡ **Technical Features**
-- **No external dependencies**: Pure Node.js backend
-- **RESTful API**: Clean endpoints for timezone conversion
-- **Error handling**: Graceful error handling with user feedback
-- **Auto-detection**: Detects and displays user's local timezone
+- **No external dependencies**: 100% client-side with `Intl.DateTimeFormat`
+- **No backend**: Ideal for GitHub Pages
+- **Error handling**: Clear messages in the UI
+- **Auto-detection**: Detects and displays your local timezone
 
-## 🚀 Live Demo
+## 🚀 Demo
 
-**[View Live Demo →](https://timezone-converter.onrender.com)**
-
-## 📸 Screenshots
-
-| Feature | Screenshot |
-|---------|------------|
-| **Desktop View** | ![Desktop](https://via.placeholder.com/400x300/667eea/ffffff?text=Desktop+View) |
-| **Mobile View** | ![Mobile](https://via.placeholder.com/200x400/667eea/ffffff?text=Mobile+View) |
-| **Active Timezone** | ![Active](https://via.placeholder.com/400x300/667eea/ffffff?text=Active+Timezone) |
+Publish with GitHub Pages (see section below) and your demo will be available at `https://paul0li.github.io/timezone-project/`.
 
 ## 🛠️ How It Works
 
@@ -52,66 +43,41 @@ A modern, interactive timezone converter that works just like **timeanddate.com*
 ## 🏃‍♂️ Quick Start
 
 ### Prerequisites
-- Node.js 18+ installed
-- Git
+- None required to use the static version
+- Optional: Python 3 or Node.js to serve `docs/` locally
 
-### Local Development
+### Local Development (Static)
 
+Option 1 (no install):
 ```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/timezone-project.git
-cd timezone-project
-
-# Start the server
-npm start
-
-# Or for development
-npm run dev
+# On macOS or any system with Python 3
+python3 -m http.server 5500 -d docs
+# Open http://localhost:5500
 ```
 
-Open your browser to `http://localhost:3000`
+Option 2 (with Node):
+```bash
+npx serve docs
+# Open the URL shown by the command (e.g. http://localhost:3000)
+```
 
 ## 📁 Project Structure
 
 ```
 timezone-project/
-├── server.js              # Express server with timezone logic
-├── static/                # Frontend files
-│   ├── index.html         # Main HTML interface
-│   ├── script.js          # Frontend JavaScript logic
-│   └── styles.css         # Modern CSS styling
-├── package.json           # Node.js configuration
-├── .gitignore            # Git ignore rules
-└── README.md             # This file
+├── docs/                  # Static site for GitHub Pages
+│   ├── index.html         # Main interface
+│   ├── script.js          # 100% client-side time conversion logic
+│   ├── styles.css         # Modern styling
+│   └── .nojekyll          # Avoid Jekyll processing
+├── README.md              # This file
+├── LICENSE
+└── .gitignore
 ```
 
-## 🔧 API Endpoints
+## 🔧 Backend/API
 
-### `GET /`
-Serves the main application interface
-
-### `GET /current`
-Returns current server time and timezone information
-```json
-{
-  "date": "2025-01-15",
-  "time": "14:30",
-  "timezone": "America/Santiago",
-  "conversions": {
-    "America/New_York": "12:30",
-    "America/Argentina/Buenos_Aires": "16:30"
-  }
-}
-```
-
-### `GET /convert-multi`
-Converts time from any source timezone to all others
-- **Parameters**: `date`, `time`, `source` (timezone)
-- **Returns**: Object with all timezone conversions
-
-### `GET /convert`
-Legacy endpoint for backward compatibility
-- **Parameters**: `date`, `time`, `source` (optional)
+This build is 100% static and exposes no endpoints. All conversions run in the browser using the `Intl.DateTimeFormat` API, including proper DST handling.
 
 ## 🌐 Supported Timezones
 
@@ -129,7 +95,7 @@ Legacy endpoint for backward compatibility
 
 ### Adding New Timezones
 
-1. **Update the timezone data** in `static/script.js`:
+1. **Update the timezone data** in `docs/script.js`:
 ```javascript
 const timezoneData = {
   // Add your timezone here
@@ -142,18 +108,25 @@ const timezoneData = {
 };
 ```
 
-2. **Add HTML row** in `static/index.html`:
+2. **Add HTML card** in `docs/index.html`:
 ```html
-<div class="timezone-row" data-timezone="Europe/London">
-  <div class="timezone-info">
-    <div class="timezone-name">United Kingdom</div>
-    <div class="timezone-location">London</div>
+<div class="timezone-card" data-timezone="Europe/London">
+  <div class="card-header">
+    <div class="flag-container" id="flag-Europe/London"></div>
+    <div class="timezone-info">
+      <div class="timezone-name">United Kingdom</div>
+      <div class="timezone-location">London</div>
+    </div>
   </div>
-  <!-- ... rest of the row structure -->
+  <div class="time-section">
+    <input type="time" class="time-input" data-timezone="Europe/London" step="60" />
+    <div class="ampm-display">AM</div>
+    <div class="timezone-offset" data-timezone="Europe/London">UTC±0</div>
+  </div>
 </div>
 ```
 
-3. **Update server logic** in `server.js` to include the new timezone in the `allZones` array.
+3. **No server changes needed**. Everything runs in the browser.
 
 ### Styling
 
@@ -170,56 +143,41 @@ The app uses CSS custom properties for easy theming. Key variables:
 
 ## 🚀 Deployment
 
-### Deploy to Render (Recommended)
+### Deploy to GitHub Pages (Static)
 
-1. **Prepare your repository**:
-```bash
-# Make sure all files are committed
-git add .
-git commit -m "Ready for deployment - English version"
-git push origin main
-```
+This project can run fully static thanks to client-side timezone conversion using the `Intl` API. A prebuilt static copy lives in the `docs/` directory for GitHub Pages.
 
-2. **Create Render account**:
-   - Go to [render.com](https://render.com)
-   - Sign up with GitHub (recommended)
+Steps:
 
-3. **Deploy the app**:
-   - Click **"New +"** → **"Web Service"**
-   - Connect your GitHub repository
-   - Configure settings:
+1. Commit and push the `docs/` directory
+   ```bash
+   git add docs/
+   git commit -m "chore: add docs/ for GitHub Pages"
+   git push origin main
+   ```
+2. In GitHub, go to `Settings` → `Pages`
+3. Under "Build and deployment":
+   - Source: `Deploy from a branch`
+   - Branch: `main` and folder: `/docs`
+4. Save. Your site will be available at:
+   - User/Org site: `https://<your-username>.github.io/<repo-name>/`
+   - Project Pages custom domain if configured.
 
-| Setting | Value |
-|---------|-------|
-| **Name** | `timezone-converter` |
-| **Region** | `Ohio (US East)` |
-| **Branch** | `main` |
-| **Runtime** | `Node` |
-| **Build Command** | *Leave empty* |
-| **Start Command** | `npm start` |
-| **Node Version** | `18` |
+Notes:
 
-4. **Deploy**:
-   - Click **"Create Web Service"**
-   - Wait 2-3 minutes for deployment
-   - Your app will be live at: `https://your-app-name.onrender.com`
+- The static app references assets with relative paths (`styles.css`, `script.js`), so it works under any subpath.
+- A `.nojekyll` file is included in `docs/` to prevent Jekyll processing.
 
-**🎉 That's it!** Render will auto-redeploy whenever you push to GitHub.
+### Server/Hosting
 
-### Other Platforms
-
-The app is also deployable on:
-- **Railway**: One-click deploy
-- **Vercel**: Serverless deployment
-- **Heroku**: Traditional hosting
-- **DigitalOcean App Platform**: Container deployment
+No backend is required. Publish the `docs/` folder via GitHub Pages as described above. For local preview, serve `docs/` with any static server.
 
 ## 🤝 Contributing
 
 Contributions are welcome! Here's how you can help:
 
 ### Bug Reports
-- Use the [Issues](https://github.com/YOUR_USERNAME/timezone-project/issues) tab
+- Use the [Issues](https://github.com/paul0li/timezone-project/issues) tab
 - Include steps to reproduce
 - Mention your browser and OS
 
@@ -245,20 +203,3 @@ Contributions are welcome! Here's how you can help:
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-- **Inspiration**: [timeanddate.com](https://timeanddate.com) for the excellent UX
-- **Design**: Modern CSS Grid and Flexbox layouts
-- **Timezone Data**: JavaScript Intl API for accurate DST calculations
-
-## 📞 Support
-
-- **Documentation**: This README
-- **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/timezone-project/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/timezone-project/discussions)
-
----
-
-**Made with ❤️ for the global community**
-
-*Converting time zones shouldn't be complicated.*

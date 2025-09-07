@@ -1,3 +1,5 @@
+/* Copied from static/script.js for GitHub Pages (client-only fallback included) */
+
 /*
  * Multi-timezone converter with individual editable inputs.
  *
@@ -65,6 +67,69 @@ document.addEventListener("DOMContentLoaded", () => {
       flag: "🇩🇴",
     },
   };
+
+  // ---- Client-side timezone conversion helpers (GitHub Pages compatible) ----
+  // Compute offset in minutes for a given Date (treated as absolute) in target TZ
+  function getOffset(date, timeZone) {
+    const dtf = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      hour12: false,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+    const parts = dtf.formatToParts(date);
+    const values = {};
+    for (const part of parts) {
+      if (part.type !== "literal") values[part.type] = part.value;
+    }
+    const asUTC = Date.UTC(
+      Number(values.year),
+      Number(values.month) - 1,
+      Number(values.day),
+      Number(values.hour),
+      Number(values.minute),
+      Number(values.second),
+    );
+    return -((date.getTime() - asUTC) / 60000);
+  }
+
+  // Calculate UTC epoch from a local date/time in a source timezone
+  function calculateEpochFromTimezone(dateStr, timeStr, sourceTimezone) {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    const [hour, minute] = timeStr.split(":").map(Number);
+    const anchorUTC = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
+    const offsetSource = getOffset(anchorUTC, sourceTimezone);
+    return (
+      Date.UTC(year, month - 1, day, hour, minute) - offsetSource * 60 * 1000
+    );
+  }
+
+  // Perform conversion locally for all supported timezones
+  function convertLocally(sourceTimezone, date, time) {
+    const allZones = [
+      "America/Santiago",
+      "America/New_York",
+      "America/Argentina/Buenos_Aires",
+      "America/Bogota",
+      "America/Santo_Domingo",
+    ];
+    const epochUTC = calculateEpochFromTimezone(date, time, sourceTimezone);
+    const results = {};
+    for (const tz of allZones) {
+      const formatted = new Intl.DateTimeFormat("en-US", {
+        timeZone: tz,
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(new Date(epochUTC));
+      results[tz] = formatted;
+    }
+    return results;
+  }
 
   /**
    * Insert flag emojis into their containers
@@ -169,20 +234,13 @@ document.addEventListener("DOMContentLoaded", () => {
   async function convertTimes(sourceTimezone, date, time) {
     if (isUpdating) return;
 
+    statusMessage.textContent = "Updating conversions...";
+    statusMessage.className = "status-message status-message--loading";
+
+    // Pure client-side conversion (no server calls)
+    const data = convertLocally(sourceTimezone, date, time);
+
     try {
-      statusMessage.textContent = "Updating conversions...";
-      statusMessage.className = "status-message status-message--loading";
-
-      const response = await fetch(
-        `/convert-multi?date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}&source=${encodeURIComponent(sourceTimezone)}`,
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
       isUpdating = true;
 
       // Update all time inputs with converted times and AM/PM
@@ -217,8 +275,8 @@ document.addEventListener("DOMContentLoaded", () => {
       statusMessage.textContent = `Conversions based on ${timezoneData[sourceTimezone]?.name || sourceTimezone}`;
       statusMessage.className = "status-message status-message--success";
     } catch (error) {
-      console.error("Error converting times:", error);
-      statusMessage.textContent = `Error converting times: ${error.message}`;
+      console.error("Error updating UI after conversion:", error);
+      statusMessage.textContent = `Error updating UI: ${error.message}`;
       statusMessage.className = "status-message status-message--error";
     } finally {
       isUpdating = false;
@@ -229,109 +287,38 @@ document.addEventListener("DOMContentLoaded", () => {
    * Load current time and perform initial conversion
    */
   async function loadInitialTimes() {
-    try {
-      statusMessage.textContent = "Loading current times...";
-      statusMessage.className = "status-message status-message--loading";
+    statusMessage.textContent = "Loading current times...";
+    statusMessage.className = "status-message status-message--loading";
 
-      const response = await fetch("/current");
+    // Pure client-side initialisation
+    const now = new Date();
+    const currentDate = now.toISOString().split("T")[0];
+    const userTime = new Intl.DateTimeFormat("en-US", {
+      timeZone: lastEditedTimezone,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(now);
 
-      if (response.ok) {
-        const data = await response.json();
+    dateInput.value = currentDate;
 
-        // Set date input
-        dateInput.value = data.date;
-
-        // Use server's current time data which already includes conversions
-        // Set the user's timezone time from server response (or Chile as fallback)
-        const userTimezoneInput = document.querySelector(
-          `[data-timezone="${lastEditedTimezone}"]`,
-        );
-        if (userTimezoneInput) {
-          userTimezoneInput.value = data.time;
-          updateAmPmDisplay(lastEditedTimezone, data.time);
-        }
-
-        // Update current date/time display
-        currentDateTimeSpan.textContent = formatDateTime(
-          data.date,
-          data.time,
-          lastEditedTimezone,
-        );
-
-        // Show all conversions from server response
-        if (data.conversions) {
-          isUpdating = true;
-          timeInputs.forEach((input) => {
-            const timezone = input.getAttribute("data-timezone");
-            if (timezone !== "America/Santiago" && data.conversions[timezone]) {
-              input.value = data.conversions[timezone];
-              updateAmPmDisplay(timezone, data.conversions[timezone]);
-            }
-          });
-          isUpdating = false;
-        }
-
-        // Ensure user's timezone time is always visible by converting from its own time
-        await convertTimes(lastEditedTimezone, data.date, data.time);
-
-        // Update timezone offsets
-        updateTimezoneOffsets(data.date);
-        highlightActiveTimezone(lastEditedTimezone);
-      } else {
-        // Fallback to user's timezone local time (or Chile if not supported)
-        const now = new Date();
-        const currentDate = now.toISOString().split("T")[0];
-        const userTime = new Intl.DateTimeFormat("en-US", {
-          timeZone: lastEditedTimezone,
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        }).format(now);
-
-        dateInput.value = currentDate;
-
-        const userTimezoneInput = document.querySelector(
-          `[data-timezone="${lastEditedTimezone}"]`,
-        );
-        if (userTimezoneInput) {
-          userTimezoneInput.value = userTime;
-          updateAmPmDisplay(lastEditedTimezone, userTime);
-        }
-
-        currentDateTimeSpan.textContent = formatDateTime(
-          currentDate,
-          userTime,
-          lastEditedTimezone,
-        );
-        await convertTimes(lastEditedTimezone, currentDate, userTime);
-      }
-    } catch (error) {
-      console.error("Error loading initial times:", error);
-
-      // Fallback to user's timezone local time (or Chile if not supported)
-      const now = new Date();
-      const currentDate = now.toISOString().split("T")[0];
-      const userTime = new Intl.DateTimeFormat("en-US", {
-        timeZone: lastEditedTimezone,
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }).format(now);
-
-      dateInput.value = currentDate;
-      const userTimezoneInput = document.querySelector(
-        `[data-timezone="${lastEditedTimezone}"]`,
-      );
-      if (userTimezoneInput) {
-        userTimezoneInput.value = userTime;
-        updateAmPmDisplay(lastEditedTimezone, userTime);
-      }
-
-      const timezoneName =
-        timezoneData[lastEditedTimezone]?.name || lastEditedTimezone;
-      statusMessage.textContent = `Using ${timezoneName} local time`;
-      statusMessage.className = "status-message status-message--warning";
+    const userTimezoneInput = document.querySelector(
+      `[data-timezone="${lastEditedTimezone}"]`,
+    );
+    if (userTimezoneInput) {
+      userTimezoneInput.value = userTime;
+      updateAmPmDisplay(lastEditedTimezone, userTime);
     }
+
+    currentDateTimeSpan.textContent = formatDateTime(
+      currentDate,
+      userTime,
+      lastEditedTimezone,
+    );
+
+    await convertTimes(lastEditedTimezone, currentDate, userTime);
+    updateTimezoneOffsets(currentDate);
+    highlightActiveTimezone(lastEditedTimezone);
   }
 
   /**
