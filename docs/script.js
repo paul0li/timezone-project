@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "America/New_York",
     "America/Argentina/Buenos_Aires",
     "America/Bogota",
-    "America/Santo_Domingo",
+    "America/Sao_Paulo",
   ];
   let lastEditedTimezone = supportedTimezones.includes(userTimezone)
     ? userTimezone
@@ -60,11 +60,11 @@ document.addEventListener("DOMContentLoaded", () => {
       country: "CO",
       flag: "🇨🇴",
     },
-    "America/Santo_Domingo": {
-      name: "Dominican Republic",
-      location: "Santo Domingo",
-      country: "DO",
-      flag: "🇩🇴",
+    "America/Sao_Paulo": {
+      name: "Brazil",
+      location: "Brasília",
+      country: "BR",
+      flag: "🇧🇷",
     },
   };
 
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "America/New_York",
       "America/Argentina/Buenos_Aires",
       "America/Bogota",
-      "America/Santo_Domingo",
+      "America/Sao_Paulo",
     ];
     const epochUTC = calculateEpochFromTimezone(date, time, sourceTimezone);
     const results = {};
