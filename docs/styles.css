@@ -43,6 +43,20 @@ p {
     font-weight: 700;
 }
 
+.site-description {
+    text-align: center;
+    color: #888888;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: -1.2rem;
+    margin-bottom: 2rem;
+    letter-spacing: 0.01em;
+}
+
+[data-theme="dark"] .site-description {
+    color: #666666;
+}
+
 /* Header section - combined info and date */
 .header-section {
     display: flex;
@@ -157,18 +171,19 @@ p {
 /* Timezone grid - minimal horizontal layout */
 .timezone-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(20%, 1fr));
     gap: 0;
     border: 1px solid #e8e8e8;
     border-radius: 0;
     overflow: hidden;
+    min-height: 200px;
 }
 
 /* Individual timezone cards */
 .timezone-card {
     background-color: #ffffff;
     border-right: 1px solid #e8e8e8;
-    border-bottom: none;
+    border-bottom: 1px solid #e8e8e8;
     padding: 1.2rem 0.8rem;
     transition: all 0.2s ease;
     position: relative;
@@ -178,8 +193,78 @@ p {
     justify-content: space-between;
 }
 
-.timezone-card:last-child {
-    border-right: none;
+/* Drag handle */
+.drag-handle {
+    font-size: 0.9rem;
+    color: #cccccc;
+    cursor: grab;
+    margin-bottom: 0.3rem;
+    line-height: 1;
+    user-select: none;
+    transition: color 0.15s ease;
+}
+
+.timezone-card:hover .drag-handle {
+    color: #aaaaaa;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Drag states */
+.timezone-card.is-dragging {
+    opacity: 0.4;
+}
+
+.timezone-card.drag-over {
+    border-left: 3px solid #dc3545;
+    background-color: #fff5f5;
+}
+
+[data-theme="dark"] .timezone-card.drag-over {
+    background-color: #2a1f1f;
+    border-left-color: #dc3545;
+}
+
+[data-theme="dark"] .drag-handle {
+    color: #555555;
+}
+
+[data-theme="dark"] .timezone-card:hover .drag-handle {
+    color: #888888;
+}
+
+/* Remove button on each card */
+.remove-btn {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: transparent;
+    color: #cccccc;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.15s ease;
+    font-weight: 400;
+    opacity: 0;
+}
+
+.timezone-card:hover .remove-btn {
+    opacity: 1;
+}
+
+.remove-btn:hover {
+    background-color: #dc3545;
+    color: #ffffff;
 }
 
 .timezone-card:hover {
@@ -364,10 +449,6 @@ p {
 
 /* Responsive design */
 @media (max-width: 1200px) {
-    .timezone-grid {
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    }
-
     .timezone-card {
         padding: 2.5rem 1.5rem;
         min-height: 300px;
@@ -406,7 +487,7 @@ p {
 
 @media (max-width: 1200px) {
     .timezone-grid {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(20%, 1fr));
     }
 
     .timezone-card {
@@ -598,7 +679,7 @@ p {
 /* Ultra-wide screens */
 @media (min-width: 1400px) {
     .timezone-grid {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(20%, 1fr));
     }
 
     .container {
@@ -644,7 +725,8 @@ p {
 
 /* High contrast mode */
 /* Dark Mode Styles */
-[data-theme="dark"] {
+[data-theme="dark"],
+[data-theme="dark"] body {
     background-color: #1a1a1a;
     color: #ffffff;
 }
@@ -849,4 +931,287 @@ p {
 
 .timezone-card--active:hover::after {
     width: 60%;
+}
+
+/* =================== GRID FOOTER & ADD BUTTON =================== */
+.grid-footer {
+    display: flex;
+    justify-content: center;
+    padding: 1.25rem 0 0.5rem;
+}
+
+.btn-add-timezone {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    background: transparent;
+    border: 2px solid #dc3545;
+    color: #dc3545;
+    font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 800;
+    cursor: pointer;
+    border-radius: 0;
+    transition: all 0.2s ease;
+    letter-spacing: 0.03em;
+}
+
+.btn-add-timezone:hover {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+.btn-add-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+    font-weight: 400;
+}
+
+/* =================== MODAL =================== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-overlay.modal--open {
+    display: flex;
+}
+
+.modal-content {
+    background: #ffffff;
+    width: 100%;
+    max-width: 520px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e8e8e8;
+    flex-shrink: 0;
+}
+
+.modal-title {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #2d2d2d;
+    margin: 0;
+    font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: #888888;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0;
+    transition: color 0.15s ease;
+    font-weight: 400;
+}
+
+.modal-close:hover {
+    color: #dc3545;
+}
+
+.modal-search {
+    margin: 1rem 1.5rem 0.5rem;
+    padding: 0.7rem 1rem;
+    border: 1px solid #e0e0e0;
+    font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    outline: none;
+    border-radius: 0;
+    flex-shrink: 0;
+    transition: border-color 0.15s ease;
+}
+
+.modal-search:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
+}
+
+.modal-list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 0.5rem 0 1rem;
+}
+
+.modal-group {
+    margin-bottom: 0.5rem;
+}
+
+.modal-group-label {
+    padding: 0.5rem 1.5rem 0.3rem;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #aaaaaa;
+    font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 0.25rem;
+}
+
+.modal-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.55rem 1.5rem;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    gap: 0.75rem;
+    transition: background-color 0.1s ease;
+    font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.modal-item:hover:not(:disabled) {
+    background-color: #fff5f5;
+}
+
+.modal-item--active {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.modal-item-flag {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    width: 1.6rem;
+    text-align: center;
+}
+
+.modal-item-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.modal-item-name {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #2d2d2d;
+    line-height: 1.2;
+}
+
+.modal-item-location {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #888888;
+    line-height: 1.2;
+}
+
+.modal-item-check {
+    font-size: 0.8rem;
+    color: #28a745;
+    font-weight: 900;
+    flex-shrink: 0;
+}
+
+.modal-item-add {
+    font-size: 1rem;
+    color: #dc3545;
+    font-weight: 400;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.modal-item:hover .modal-item-add {
+    opacity: 1;
+}
+
+.modal-empty {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    color: #888888;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* =================== DARK MODE - NEW ELEMENTS =================== */
+[data-theme="dark"] .remove-btn {
+    color: #555555;
+}
+
+[data-theme="dark"] .remove-btn:hover {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .btn-add-timezone {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+[data-theme="dark"] .btn-add-timezone:hover {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .modal-content {
+    background-color: #2d2d2d;
+}
+
+[data-theme="dark"] .modal-header {
+    border-bottom-color: #444444;
+}
+
+[data-theme="dark"] .modal-title {
+    color: #ffffff;
+}
+
+[data-theme="dark"] .modal-close {
+    color: #888888;
+}
+
+[data-theme="dark"] .modal-close:hover {
+    color: #dc3545;
+}
+
+[data-theme="dark"] .modal-search {
+    background-color: #333333;
+    border-color: #555555;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .modal-search:focus {
+    border-color: #dc3545;
+}
+
+[data-theme="dark"] .modal-group-label {
+    color: #666666;
+    border-bottom-color: #3a3a3a;
+}
+
+[data-theme="dark"] .modal-item:hover:not(:disabled) {
+    background-color: #2a1f1f;
+}
+
+[data-theme="dark"] .modal-item-name {
+    color: #ffffff;
+}
+
+[data-theme="dark"] .modal-item-location {
+    color: #aaaaaa;
 }

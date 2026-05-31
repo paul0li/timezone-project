@@ -16,6 +16,7 @@
     <body>
         <div class="container">
             <h1>World Time Zone Converter</h1>
+            <p class="site-description">Built to coordinate meetings across LATAM and the US — pick a time and instantly see what it means for everyone on the team.</p>
 
             <div class="header-section">
                 <div id="currentInfo" class="current-info">
@@ -45,157 +46,14 @@
 
             <div class="timezone-converter">
                 <div class="timezone-grid">
-                    <div class="timezone-card" data-timezone="America/Santiago">
-                        <div class="card-header">
-                            <div
-                                class="flag-container"
-                                id="flag-America/Santiago"
-                            ></div>
-                            <div class="timezone-info">
-                                <div class="timezone-name">Chile</div>
-                                <div class="timezone-location">Santiago</div>
-                            </div>
-                        </div>
-                        <div class="time-section">
-                            <input
-                                type="time"
-                                class="time-input"
-                                data-timezone="America/Santiago"
-                                step="60"
-                            />
-                            <div class="ampm-display">AM</div>
-                            <div
-                                class="timezone-offset"
-                                data-timezone="America/Santiago"
-                            >
-                                UTC-3
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Cards rendered dynamically by script.js -->
+                </div>
 
-                    <div class="timezone-card" data-timezone="America/New_York">
-                        <div class="card-header">
-                            <div
-                                class="flag-container"
-                                id="flag-America/New_York"
-                            ></div>
-                            <div class="timezone-info">
-                                <div class="timezone-name">United States</div>
-                                <div class="timezone-location">New York</div>
-                            </div>
-                        </div>
-                        <div class="time-section">
-                            <input
-                                type="time"
-                                class="time-input"
-                                data-timezone="America/New_York"
-                                step="60"
-                            />
-                            <div class="ampm-display">AM</div>
-                            <div
-                                class="timezone-offset"
-                                data-timezone="America/New_York"
-                            >
-                                UTC-5
-                            </div>
-                        </div>
-                    </div>
-
-                    <div
-                        class="timezone-card"
-                        data-timezone="America/Argentina/Buenos_Aires"
-                    >
-                        <div class="card-header">
-                            <div
-                                class="flag-container"
-                                id="flag-America/Argentina/Buenos_Aires"
-                            ></div>
-                            <div class="timezone-info">
-                                <div class="timezone-name">Argentina</div>
-                                <div class="timezone-location">
-                                    Buenos Aires
-                                </div>
-                            </div>
-                        </div>
-                        <div class="time-section">
-                            <input
-                                type="time"
-                                class="time-input"
-                                data-timezone="America/Argentina/Buenos_Aires"
-                                step="60"
-                            />
-                            <div class="ampm-display">AM</div>
-                            <div
-                                class="timezone-offset"
-                                data-timezone="America/Argentina/Buenos_Aires"
-                            >
-                                UTC-3
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timezone-card" data-timezone="America/Bogota">
-                        <div class="card-header">
-                            <div
-                                class="flag-container"
-                                id="flag-America/Bogota"
-                            ></div>
-                            <div class="timezone-info">
-                                <div class="timezone-name">Colombia</div>
-                                <div class="timezone-location">Bogotá</div>
-                            </div>
-                        </div>
-                        <div class="time-section">
-                            <input
-                                type="time"
-                                class="time-input"
-                                data-timezone="America/Bogota"
-                                step="60"
-                            />
-                            <div class="ampm-display">AM</div>
-                            <div
-                                class="timezone-offset"
-                                data-timezone="America/Bogota"
-                            >
-                                UTC-5
-                            </div>
-                        </div>
-                    </div>
-
-                    <div
-                        class="timezone-card"
-                        data-timezone="America/Sao_Paulo"
-                    >
-                        <div class="card-header">
-                            <div
-                                class="flag-container"
-                                id="flag-America/Sao_Paulo"
-                            ></div>
-                            <div class="timezone-info">
-                                <div class="timezone-name">
-                                    Brazil
-                                </div>
-                                <div class="timezone-location">
-                                    Brasília
-                                </div>
-                            </div>
-                        </div>
-                        <div class="time-section">
-                            <input
-                                type="time"
-                                class="time-input"
-                                data-timezone="America/Sao_Paulo"
-                                step="60"
-                            />
-                            <div class="ampm-display">AM</div>
-                            <div
-                                class="timezone-offset"
-                                data-timezone="America/Sao_Paulo"
-                            >
-                                UTC-3
-                            </div>
-                        </div>
-                    </div>
+                <div class="grid-footer">
+                    <button id="addTimezoneBtn" class="btn-add-timezone">
+                        <span class="btn-add-icon">+</span>
+                        Add Timezone
+                    </button>
                 </div>
 
                 <div class="status-message" id="statusMessage">
@@ -203,6 +61,25 @@
                 </div>
             </div>
         </div>
+
+        <!-- Add Timezone Modal -->
+        <div id="tzModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add Timezone">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Add Timezone</h2>
+                    <button id="modalClose" class="modal-close" aria-label="Close">×</button>
+                </div>
+                <input
+                    id="modalSearch"
+                    type="text"
+                    class="modal-search"
+                    placeholder="Search country or city..."
+                    autocomplete="off"
+                />
+                <div id="modalList" class="modal-list"></div>
+            </div>
+        </div>
+
         <script src="script.js"></script>
     </body>
 </html>
